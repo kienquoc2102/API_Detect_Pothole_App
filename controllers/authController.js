@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+const bcryptjs = require("bcryptjs");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
@@ -6,8 +6,8 @@ const authController = {
     //Register
     registerUser: async(req,res) => {
         try {
-            const salt = await bcrypt.genSalt(10);
-            const hashed = await bcrypt.hash(req.body.password, salt);
+            const salt = await bcryptjs.genSalt(10);
+            const hashed = await bcryptjs.hash(req.body.password, salt);
 
             //Create new User
             const newUser = await new User({
@@ -36,7 +36,7 @@ const authController = {
             if (!user) {
                 res.status(400).json("Wrong username");
             }
-            const validPassword = await bcrypt.compare(
+            const validPassword = await bcryptjs.compare(
                 req.body.password,
                 user.password
             );
