@@ -23,6 +23,14 @@ const userSchema = new mongoose.Schema({
     admin: {
         type: Boolean,
         default: false,
+    },
+    resetPasswordPin: {
+        type: String,
+        required: false
+    },
+    resetPasswordExpire: {
+        type: Date,
+        required: false,
     }
 }, {timestamps: true}
 );
