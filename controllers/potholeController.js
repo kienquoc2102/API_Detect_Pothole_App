@@ -12,6 +12,10 @@
                 })
 
                 const pothole = await newPothole.save();
+
+                //Gửi thông báo thời gian thực đến tất cả client
+                req.io.emit("newPothole", pothole);
+
                 res.status(200).json(pothole);
             }
             catch (err) {
@@ -81,6 +85,8 @@
         deletePothole: async (req,res) => {
             try {
                 const pothole = await Pothole.findByIdAndDelete(req.params.id);
+
+                req.io.emit("deleted pothole")
                 res.status(200).json("Deleted successfully")
             }
             catch (err) {
