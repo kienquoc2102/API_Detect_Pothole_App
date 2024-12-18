@@ -14,7 +14,7 @@
                 const pothole = await newPothole.save();
 
                 //Gửi thông báo thời gian thực đến tất cả client
-                req.io.emit("newPothole", pothole);
+                req.io.emit("changePothole", pothole);
 
                 res.status(200).json(pothole);
             }
@@ -70,6 +70,7 @@
         
                 if (updatedPothole) {
                     console.log("Pothole updated:", updatedPothole);
+                    req.io.emit("changePothole", pothole)
                     res.status(200).json(updatedPothole);
                 } else {
                     console.log("Pothole not found");
@@ -86,7 +87,7 @@
             try {
                 const pothole = await Pothole.findByIdAndDelete(req.params.id);
 
-                req.io.emit("deleted pothole")
+                req.io.emit("changePothole", pothole)
                 res.status(200).json("Deleted successfully")
             }
             catch (err) {
