@@ -16,7 +16,8 @@ const io = new Server(server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST", "PUT", "DELETE"]
-    }
+    },
+    transports: ["polling"],
 });
 
 //Middleware
@@ -49,8 +50,8 @@ io.on("connection", (socket) => {
     });
 });
 
-// const PORT = 8000;
-// server.listen(PORT,()=> {
-//     console.log(`Server is running on port ${PORT}`);
-// });
-module.exports = server;
+const PORT = 8000;
+server.listen(PORT,()=> {
+    console.log(`Server is running on port ${PORT}`);
+});
+// module.exports = server;
