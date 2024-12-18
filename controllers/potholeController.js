@@ -70,7 +70,7 @@
         
                 if (updatedPothole) {
                     console.log("Pothole updated:", updatedPothole);
-                    req.io.emit("changePothole", pothole)
+                    req.io.emit("changePothole", updatedPothole)
                     res.status(200).json(updatedPothole);
                 } else {
                     console.log("Pothole not found");
