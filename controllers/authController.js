@@ -2,8 +2,53 @@ const bcryptjs = require("bcryptjs");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer")
+const {OAuth2Client} = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 const authController = {
+    //Google
+    googleLogin: async (req, res) => {
+        try {
+            const { token } = req.body; // Token từ phía Android gửi lên
+            const ticket = await client.verifyIdToken({
+                idToken: token,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
+    
+            const payload = ticket.getPayload();
+            const { email, name, picture } = payload;
+    
+            // Tìm user trong database
+            let user = await User.findOne({ email });
+            if (!user) {
+                // Nếu user chưa tồn tại, tạo mới
+                user = await User.create({
+                    username: name,
+                    email: email,
+                    avatar: picture,
+                    password: null, // User Google không cần password
+                });
+            }
+    
+            // Tạo JWT token
+            const accessToken = authController.generateAccessToken(user);
+            const refreshToken = authController.generateRefreshToken(user);
+    
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                path: "/",
+                sameSite: "strict",
+            });
+    
+            const { password, ...others } = user._doc;
+            res.status(200).json({ ...others, accessToken });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json("Failed to authenticate Google user");
+        }
+    },
+
     //Register
     registerUser: async(req,res) => {
         try {

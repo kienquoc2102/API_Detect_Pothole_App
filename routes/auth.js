@@ -5,5 +5,6 @@ router.post("/register", authController.registerUser);
 router.post("/login", authController.loginUser);
 router.post("/sendPin", authController.sendResetPin);
 router.post("/resetPassword", authController.verifyPinAndResetPassword);
+router.post("/googleLogin", authController.googleLogin);
 
 module.exports = router;
