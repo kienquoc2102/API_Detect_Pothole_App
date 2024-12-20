@@ -22,6 +22,10 @@ const potholeSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: 1,
+    },
+    contributor: {
+        type:String,
+        default: ""
     }
 }, {timestamps:true}
 );

@@ -8,7 +8,8 @@
                     street: req.body.street,
                     longitude: req.body.longitude,
                     latitude: req.body.latitude,
-                    level: req.body.level
+                    level: req.body.level,
+                    contributor: req.body.contributor
                 })
 
                 const pothole = await newPothole.save();
