@@ -148,7 +148,7 @@ const authController = {
             const oldUser = await User.findById(userId);
             if (!oldUser) {
                 console.log("User not found");
-                return res.status(404).json("User not found");
+                res.status(404).json("User not found");
             }
     
             const oldUsername = oldUser.username; // Tên cũ của user trước khi cập nhật
