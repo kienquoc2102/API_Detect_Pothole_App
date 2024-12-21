@@ -218,6 +218,53 @@ const authController = {
         }
     },
 
+    checkCurrentPassword: async (req, res) => {
+        try {
+            const userId = req.params.id;
+            const {currentPassword} = req.body;
+
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json("User not found");
+            }
+
+            const isPasswordValid = await bcryptjs.compare(currentPassword, user.password);
+            if (!isPasswordValid) {
+                return res.status(400).json("Current password is incorrect");
+            }
+
+            res.status(200).json("Current password is correct");
+        } catch (err) {
+            console.error("Error checking current password:", err);
+            res.status(500).json("An error occurred while checking the password");
+        }
+    },
+
+    createNewPassword: async (req, res) => {
+        try {
+            const userId = req.user.id; // Lấy user ID từ token
+            const { newPassword } = req.body;
+    
+            // Tìm user trong cơ sở dữ liệu
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json("User not found");
+            }
+    
+            // Tạo mật khẩu mới
+            const salt = await bcryptjs.genSalt(10);
+            user.password = await bcryptjs.hash(newPassword, salt);
+    
+            // Lưu mật khẩu mới
+            await user.save();
+    
+            res.status(200).json("Password created successfully");
+        } catch (err) {
+            console.error("Error creating new password:", err);
+            res.status(500).json("An error occurred while creating the password");
+        }
+    },    
+
     //Generate Access Token
     generateAccessToken: (user) => {
         return jwt.sign({
