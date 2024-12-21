@@ -134,6 +134,34 @@ const authController = {
         }
     },
 
+    //Update Info User
+    updateUser: async (req, res) => {
+                try {
+                    const userId = req.params.id;
+                    const updatedData = req.body;
+            
+                    console.log("Updating user with ID:", userId);
+                    console.log("Updated data:", updatedData);
+            
+                    const updatedUser = await User.findByIdAndUpdate(
+                        userId,
+                        { $set: updatedData },
+                        { new: true, runValidators: true }
+                    );
+            
+                    if (updatedUser) {
+                        console.log("User updated:", updatedUser);
+                        res.status(200).json(updatedUser);
+                    } else {
+                        console.log("User not found");
+                        res.status(404).json("User not found");
+                    }
+                } catch (err) {
+                    console.error("Error updating user:", err);
+                    res.status(500).json(err);
+                }
+        },
+
     //Login
     loginUser: async (req,res) => {
         try {
