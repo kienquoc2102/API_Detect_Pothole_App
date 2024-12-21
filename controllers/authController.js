@@ -3,6 +3,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer")
 const {OAuth2Client} = require("google-auth-library");
+const Pothole = require("../models/Pothole");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 const authController = {
@@ -136,31 +137,53 @@ const authController = {
 
     //Update Info User
     updateUser: async (req, res) => {
-                try {
-                    const userId = req.params.id;
-                    const updatedData = req.body;
-            
-                    console.log("Updating user with ID:", userId);
-                    console.log("Updated data:", updatedData);
-            
-                    const updatedUser = await User.findByIdAndUpdate(
-                        userId,
-                        { $set: updatedData },
-                        { new: true, runValidators: true }
+        try {
+            const userId = req.params.id;
+            const updatedData = req.body;
+    
+            console.log("Updating user with ID:", userId);
+            console.log("Updated data:", updatedData);
+    
+            // Tìm người dùng hiện tại để lấy username cũ
+            const oldUser = await User.findById(userId);
+            if (!oldUser) {
+                console.log("User not found");
+                return res.status(404).json("User not found");
+            }
+    
+            const oldUsername = oldUser.username; // Tên cũ của user trước khi cập nhật
+    
+            // Cập nhật thông tin user
+            const updatedUser = await User.findByIdAndUpdate(
+                userId,
+                { $set: updatedData },
+                { new: true, runValidators: true }
+            );
+    
+            if (updatedUser) {
+                console.log("User updated:", updatedUser);
+    
+                // Kiểm tra nếu username được cập nhật
+                if (updatedData.username && updatedData.username !== oldUsername) {
+                    // Tìm và cập nhật các pothole có contributor là username cũ
+                    const updatedPotholes = await Pothole.updateMany(
+                        { contributor: oldUsername }, // Điều kiện tìm kiếm
+                        { $set: { contributor: updatedData.username } } // Cập nhật contributor
                     );
-            
-                    if (updatedUser) {
-                        console.log("User updated:", updatedUser);
-                        res.status(200).json(updatedUser);
-                    } else {
-                        console.log("User not found");
-                        res.status(404).json("User not found");
-                    }
-                } catch (err) {
-                    console.error("Error updating user:", err);
-                    res.status(500).json(err);
+    
+                    console.log(`Updated ${updatedPotholes.modifiedCount} potholes`);
                 }
-        },
+    
+                res.status(200).json(updatedUser);
+            } else {
+                console.log("User not found after update");
+                res.status(404).json("User not found");
+            }
+        } catch (err) {
+            console.error("Error updating user:", err);
+            res.status(500).json(err);
+        }
+    },    
 
     //Login
     loginUser: async (req,res) => {
